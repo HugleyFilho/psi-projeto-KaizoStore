@@ -1,4 +1,4 @@
-from flask import Blueprint, request, session
+from flask import Blueprint, request, session, render_template, redirect, url_for
 from sqlalchemy.orm import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -21,7 +21,7 @@ def cadastro():
             )
             db_session.add(novo_jogador)
             db_session.commit()
-    return ""
+    return render_template("cadastro.html", nickname=nickname, email=email, senha=senha)
 
 @auth_bp.route("/login")
 def login():
@@ -43,4 +43,4 @@ def login():
 @auth_bp.route("/logout")
 def logout():
     session.clear()
-    return ""
+    return redirect(url_for("auth.login"))
