@@ -1,8 +1,8 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, render_template, redirect, url_for, flash
 from sqlalchemy.orm import Session
 
 from models.database import engine
-from models.models import PacoteItem
+from models.models import Jogo, PacoteItem
 
 pacote_bp = Blueprint("pacote", __name__, url_prefix="/pacotes")
 
@@ -11,59 +11,66 @@ pacote_bp = Blueprint("pacote", __name__, url_prefix="/pacotes")
 def listar():
     with Session(engine) as db_session:
         pacotes = db_session.query(PacoteItem).all()
-    return ""
+        return render_template("pacotes/lista.html", pacotes=pacotes)
+
 
 @pacote_bp.route("/<int:id>")
 def buscar(id):
     with Session(engine) as db_session:
-        pacote = db_session.query(PacoteItem).filter(PacoteItem.id == id).first()
-    return ""
+        pacote = db_session.get(PacoteItem, id)
+        if not pacote:
+            flash("Pacote não encontrado.")
+            return redirect(url_for("pacote.listar"))
+        return render_template("pacotes/detalhe.html", pacote=pacote)
 
-@pacote_bp.route("/criar")
+
+@pacote_bp.route("/criar", methods=["GET", "POST"])
 def criar():
-    nome = request.args.get("nome")
-    quantidade_moeda = request.args.get("quantidade_moeda", type=int)
-    preco = request.args.get("preco", type=float)
-    jogo_id = request.args.get("jogo_id", type=int)
-
-    if nome and jogo_id:
-        with Session(engine) as db_session:
-            novo_pacote = PacoteItem(
-                nome=nome,
-                quantidade_moeda=quantidade_moeda or 0,
-                preco=preco or 0.0,
-                jogo_id=jogo_id,
-            )
-            db_session.add(novo_pacote)
-            db_session.commit()
-    return ""
-
-@pacote_bp.route("/editar/<int:id>")
-def editar(id):
-    nome = request.args.get("nome")
-    quantidade_moeda = request.args.get("quantidade_moeda", type=int)
-    preco = request.args.get("preco", type=float)
-    jogo_id = request.args.get("jogo_id", type=int)
-
     with Session(engine) as db_session:
-        pacote = db_session.query(PacoteItem).filter(PacoteItem.id == id).first()
-        if pacote:
-            if nome:
-                pacote.nome = nome
-            if quantidade_moeda is not None:
-                pacote.quantidade_moeda = quantidade_moeda
-            if preco is not None:
-                pacote.preco = preco
-            if jogo_id:
-                pacote.jogo_id = jogo_id
+        if request.method == "POST":
+            db_session.add(PacoteItem(
+                nome=request.form.get("nome"),
+                quantidade_moeda=request.form.get("quantidade_moeda", type=int) or 0,
+                preco=request.form.get("preco", type=float) or 0.0,
+                jogo_id=request.form.get("jogo_id", type=int),
+            ))
             db_session.commit()
-    return ""
+            flash("Pacote criado.")
+            return redirect(url_for("pacote.listar"))
 
-@pacote_bp.route("/deletar/<int:id>")
+        jogos = db_session.query(Jogo).all()
+        return render_template("pacotes/form.html", pacote=None, jogos=jogos)
+
+
+@pacote_bp.route("/editar/<int:id>", methods=["GET", "POST"])
+def editar(id):
+    with Session(engine) as db_session:
+        pacote = db_session.get(PacoteItem, id)
+        if not pacote:
+            flash("Pacote não encontrado.")
+            return redirect(url_for("pacote.listar"))
+
+        if request.method == "POST":
+            pacote.nome = request.form.get("nome")
+            pacote.quantidade_moeda = request.form.get("quantidade_moeda", type=int) or 0
+            pacote.preco = request.form.get("preco", type=float) or 0.0
+            pacote.jogo_id = request.form.get("jogo_id", type=int)
+            db_session.commit()
+            flash("Pacote atualizado.")
+            return redirect(url_for("pacote.listar"))
+
+        jogos = db_session.query(Jogo).all()
+        return render_template("pacotes/form.html", pacote=pacote, jogos=jogos)
+
+
+@pacote_bp.route("/deletar/<int:id>", methods=["POST"])
 def deletar(id):
     with Session(engine) as db_session:
-        pacote = db_session.query(PacoteItem).filter(PacoteItem.id == id).first()
-        if pacote:
+        pacote = db_session.get(PacoteItem, id)
+        if not pacote:
+            flash("Pacote não encontrado.")
+        else:
             db_session.delete(pacote)
             db_session.commit()
-    return ""
+            flash("Pacote excluído.")
+    return redirect(url_for("pacote.listar"))
