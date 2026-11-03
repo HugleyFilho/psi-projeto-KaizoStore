@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Kaizo Store{% endblock %}
+{% block content %}
+{% set logado = session.get('jogador_id') %}
+<h1>{{ jogo.titulo }}</h1>
+<p>Categoria: <a href="{{ url_for('categoria.buscar', id=jogo.categoria.id) }}">{{ jogo.categoria.nome }}</a></p>
+<p>Preço: R$ {{ '%.2f'|format(jogo.preco) }}</p>
+<p>{{ jogo.descricao or '' }}</p>
+
+{% if logado %}
+    {% if logado in jogo.jogadores_favoritos|map(attribute='id')|list %}
+        <form action="{{ url_for('jogador.desvincular_jogo', id=logado, jogo_id=jogo.id) }}" method="post">
+            <button type="submit">Remover dos favoritos</button>
+        </form>
+    {% else %}
+        <form action="{{ url_for('jogador.vincular_jogo', id=logado) }}" method="post">
+            <input type="hidden" name="jogo_id" value="{{ jogo.id }}">
+            <button type="submit">Favoritar</button>
+        </form>
+    {% endif %}
+{% endif %}
+
+<h2>Pacotes de itens</h2>
+<ul>
+    {% for pacote in jogo.pacotes_itens %}
+        <li><a href="{{ url_for('pacote.buscar', id=pacote.id) }}">{{ pacote.nome }}</a> - R$ {{ '%.2f'|format(pacote.preco) }}</li>
+    {% else %}
+        <li>Nenhum pacote para este jogo.</li>
+    {% endfor %}
+</ul>
+
+<h2>Jogadores que favoritaram</h2>
+<ul>
+    {% for jogador in jogo.jogadores_favoritos %}
+        <li><a href="{{ url_for('jogador.buscar', id=jogador.id) }}">{{ jogador.nickname }}</a></li>
+    {% else %}
+        <li>Ninguém favoritou ainda.</li>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('jogo.listar') }}">Voltar</a>
+{% endblock %}

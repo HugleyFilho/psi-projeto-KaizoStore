@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Catálogo - Kaizo Store{% endblock %}
+{% block content %}
+<h1>Catálogo</h1>
+{% for categoria in categorias %}
+    <h2>{{ categoria.nome }}</h2>
+    <ul>
+        {% for jogo in categoria.jogos %}
+        <li class="linha">
+            <a href="{{ url_for('jogo.buscar', id=jogo.id) }}">{{ jogo.titulo }}</a>
+            - R$ {{ '%.2f'|format(jogo.preco) }} ({{ jogo.pacotes_itens|length }} pacotes)
+            <form action="{{ url_for('main.favoritar_jogo', jogo_id=jogo.id) }}" method="post">
+                <button type="submit">{{ 'Remover dos favoritos' if jogo.id in favoritos else 'Favoritar' }}</button>
+            </form>
+        </li>
+        {% else %}
+        <li>Nenhum jogo nesta categoria.</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Nenhuma categoria cadastrada.</p>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Kaizo Store{% endblock %}
+{% block content %}
+<h1>{{ 'Editar categoria' if categoria else 'Nova categoria' }}</h1>
+<form class="dados" method="post"
+      action="{{ url_for('categoria.editar', id=categoria.id) if categoria else url_for('categoria.criar') }}">
+    <label for="nome">Nome</label>
+    <input type="text" id="nome" name="nome" value="{{ categoria.nome if categoria else '' }}" required>
+    <label for="descricao">Descrição</label>
+    <textarea id="descricao" name="descricao">{{ categoria.descricao if categoria and categoria.descricao else '' }}</textarea>
+    <br><br>
+    <button type="submit">Salvar</button>
+    <a href="{{ url_for('categoria.listar') }}">Cancelar</a>
+</form>
+{% endblock %}

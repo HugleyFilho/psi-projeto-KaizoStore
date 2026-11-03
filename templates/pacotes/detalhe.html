@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Kaizo Store{% endblock %}
+{% block content %}
+{% set logado = session.get('jogador_id') %}
+<h1>{{ pacote.nome }}</h1>
+<p>Jogo: <a href="{{ url_for('jogo.buscar', id=pacote.jogo.id) }}">{{ pacote.jogo.titulo }}</a></p>
+<p>Moedas: {{ pacote.quantidade_moeda }}</p>
+<p>Preço: R$ {{ '%.2f'|format(pacote.preco) }}</p>
+
+{% if logado %}
+    {% if logado in pacote.jogadores|map(attribute='id')|list %}
+        <form action="{{ url_for('jogador.desvincular_pacote', id=logado, pacote_id=pacote.id) }}" method="post">
+            <button type="submit">Remover dos meus pacotes</button>
+        </form>
+    {% else %}
+        <form action="{{ url_for('jogador.vincular_pacote', id=logado) }}" method="post">
+            <input type="hidden" name="pacote_id" value="{{ pacote.id }}">
+            <button type="submit">Adquirir</button>
+        </form>
+    {% endif %}
+{% endif %}
+
+<h2>Jogadores que adquiriram</h2>
+<ul>
+    {% for jogador in pacote.jogadores %}
+        <li><a href="{{ url_for('jogador.buscar', id=jogador.id) }}">{{ jogador.nickname }}</a></li>
+    {% else %}
+        <li>Ninguém adquiriu ainda.</li>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('pacote.listar') }}">Voltar</a>
+{% endblock %}

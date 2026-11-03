@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Kaizo Store{% endblock %}
+{% block content %}
+<h1>{{ categoria.nome }}</h1>
+<p>{{ categoria.descricao or '' }}</p>
+
+<h2>Jogos desta categoria</h2>
+<ul>
+    {% for jogo in categoria.jogos %}
+        <li><a href="{{ url_for('jogo.buscar', id=jogo.id) }}">{{ jogo.titulo }}</a></li>
+    {% else %}
+        <li>Nenhum jogo nesta categoria.</li>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('categoria.listar') }}">Voltar</a>
+{% endblock %}
