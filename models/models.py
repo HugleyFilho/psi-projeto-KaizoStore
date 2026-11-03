@@ -46,10 +46,11 @@ class PacoteItem(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     nome: Mapped[str] = mapped_column(String(150))
     descricao: Mapped[Optional[str]] = mapped_column(Text)
+    quantidade_moeda: Mapped[int] = mapped_column(default=0)  # Atributo adicionado
     preco: Mapped[float] = mapped_column(default=0.0)
     jogo_id: Mapped[int] = mapped_column(ForeignKey("jogos.id"))
+    
     jogo: Mapped["Jogo"] = relationship(back_populates="pacotes_itens")
-
     jogadores: Mapped[List["Jogador"]] = relationship(
         secondary=jogador_pacote, back_populates="pacotes_adquiridos"
     )
