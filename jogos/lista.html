@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Kaizo Store{% endblock %}
+{% block content %}
+<h1>Jogos</h1>
+<p><a class="botao" href="{{ url_for('jogo.criar') }}">Novo jogo</a></p>
+<table>
+    <tr><th>Título</th><th>Categoria</th><th>Preço</th><th>Ações</th></tr>
+    {% for jogo in jogos %}
+    <tr>
+        <td><a href="{{ url_for('jogo.buscar', id=jogo.id) }}">{{ jogo.titulo }}</a></td>
+        <td>{{ jogo.categoria.nome }}</td>
+        <td>R$ {{ '%.2f'|format(jogo.preco) }}</td>
+        <td class="linha">
+            <a class="botao" href="{{ url_for('jogo.editar', id=jogo.id) }}">Editar</a>
+            <form action="{{ url_for('jogo.deletar', id=jogo.id) }}" method="post">
+                <button class="perigo" type="submit">Excluir</button>
+            </form>
+        </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4">Nenhum jogo cadastrado.</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

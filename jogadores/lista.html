@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Kaizo Store{% endblock %}
+{% block content %}
+<h1>Jogadores</h1>
+<table>
+    <tr><th>Nickname</th><th>E-mail</th><th>Ações</th></tr>
+    {% for jogador in jogadores %}
+    <tr>
+        <td><a href="{{ url_for('jogador.buscar', id=jogador.id) }}">{{ jogador.nickname }}</a></td>
+        <td>{{ jogador.email }}</td>
+        <td class="linha">
+            <a class="botao" href="{{ url_for('jogador.editar', id=jogador.id) }}">Editar</a>
+            <form action="{{ url_for('jogador.deletar', id=jogador.id) }}" method="post">
+                <button class="perigo" type="submit">Excluir</button>
+            </form>
+        </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="3">Nenhum jogador cadastrado.</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}
