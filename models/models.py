@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List, Optional
 from sqlalchemy import Column, DateTime, ForeignKey, String, Table, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from database import Base
+from models.database import Base
 
 jogador_pacote = Table(
     "jogador_pacote",

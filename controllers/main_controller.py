@@ -19,7 +19,15 @@ def catalogo():
     with Session(engine) as db_session:
         jogos = db_session.query(Jogo).all()
         categorias = db_session.query(Categoria).all()
-        return render_template("catalogo.html", jogos=jogos, categorias=categorias)
+        favoritos = set()
+        if "jogador_id" in session:
+            jogador = db_session.get(Jogador, session["jogador_id"])
+            if jogador:
+                favoritos = {j.id for j in jogador.jogos_favoritos}
+        return render_template("catalogo.html", jogos=jogos, categorias=categorias, favoritos=favoritos)
+
+
+
 
 
 @main_bp.route("/favoritar/<int:jogo_id>", methods=["POST"])

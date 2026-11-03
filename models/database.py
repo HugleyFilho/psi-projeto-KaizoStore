@@ -3,7 +3,7 @@ from sqlalchemy.orm import DeclarativeBase
 
 DATABASE_URL = "sqlite:///kaizostore.db"
 
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL, echo=False)
 
 
 class Base(DeclarativeBase):
