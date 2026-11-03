@@ -1,8 +1,8 @@
-from flask import Blueprint, request, render_template, redirect, url_for, flash
+from flask import Blueprint, request, render_template, redirect, url_for, flash, session
 from sqlalchemy.orm import Session
 
 from models.database import engine
-from models.models import Jogo, PacoteItem
+from models.models import Jogo, PacoteItem, Jogador
 
 pacote_bp = Blueprint("pacote", __name__, url_prefix="/pacotes")
 
@@ -73,4 +73,25 @@ def deletar(id):
             db_session.delete(pacote)
             db_session.commit()
             flash("Pacote excluído.")
+    return redirect(url_for("pacote.listar"))
+
+
+@pacote_bp.route("/adquirir/<int:id>", methods=["POST"])
+def adquirir(id):
+    if "jogador_id" not in session:
+        flash("Faça login para adquirir pacotes.")
+        return redirect(url_for("auth.login"))
+
+    with Session(engine) as db_session:
+        jogador = db_session.get(Jogador, session["jogador_id"])
+        pacote = db_session.get(PacoteItem, id)
+
+        if pacote and jogador:
+            if pacote not in jogador.pacotes_adquiridos:
+                jogador.pacotes_adquiridos.append(pacote)
+                db_session.commit()
+                flash("Pacote adquirido com sucesso!")
+            else:
+                flash("Você já possui este pacote.")
+
     return redirect(url_for("pacote.listar"))
